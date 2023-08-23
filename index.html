@@ -86,27 +86,10 @@
       <div class="back" id="backContent"></div>
     </div>
   </div>
-
+  <br>
+  <button id="exportButton">Export Completed Words</button>
   <script>
-    fetch('nihongo_n5.txt',{ mode: 'no-cors'})
-      .then(response => response.text())
-      .then(textContent => {
-        const wordList = textContent.trim().split('\n');
-        console.log(wordList); // Your wordList as a JavaScript array
-      })
-      .catch(error => {
-        console.error('Error reading the file:', error);
-      });
-
-      fetch('meaning_n5.txt',{ mode: 'no-cors'})
-      .then(response => response.text())
-      .then(textContent => {
-        const meaningList = textContent.trim().split('\n');
-        console.log(meaningList); // Your wordList as a JavaScript array
-      })
-      .catch(error => {
-        console.error('Error reading the english file:', error);
-      });
+    let read_vals = [];
 
     function getRandomAndRemove(array) {
       if (array.length === 0) {
@@ -6946,10 +6929,17 @@ const numbersSpelling =word_dict[level]['meanings'];
       console.log(ret_list);
       return ret_list;
     }
+
     var myList=[];
     function gen_ran(){
+      const response = confirm("Before changing levels, you can export the words seen so far. Would you like to change level?")
+      if (response == false){
+        return 0;
+      }
+      read_vals = [];
     myList = [];
     var level = document.getElementById("level").value;
+
     console.log(level);
     myList = generate_random_list(level);
     }
@@ -6969,6 +6959,10 @@ const numbersSpelling =word_dict[level]['meanings'];
         // Show back side (spelling)
         card.classList.add('flipped');
         document.getElementById('backContent').textContent = myList[0].back;
+        var temp_d = new Object();
+        read_vals.push(myList[0]);
+        console.log("Completed words")
+        console.log(read_vals);
         myList.shift();
       } else {
         // Show front side (number)
@@ -6986,5 +6980,25 @@ const numbersSpelling =word_dict[level]['meanings'];
     document.getElementById("frontContent").textContent = myList[0].front;
     document.getElementById("backContent").textContent = myList[0].back;
   </script>
+<script>
+  document.getElementById('exportButton').addEventListener('click', () => {
+      let output = '';
+
+      for (let i = 1; i < read_vals.length; i++) {
+        output += `${read_vals[i].front}: ${read_vals[i].back}\n`;
+      }
+
+      const blob = new Blob([output], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'japanese_words_'+ document.getElementById("level").value+ '.txt';
+      a.textContent = 'Download Words';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    });
+</script>
 </body>
 </html>
